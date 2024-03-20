@@ -25,7 +25,9 @@ import conversationRoute from "./Routes/conversation_route.js";
 import conversation from "./Models/conversation.js";
 //DATABASE
 mongoose
-  .connect("mongodb+srv://ranianadine:kUp44PvOVpUzcyhK@chatcountdb.lrppzqm.mongodb.net/?retryWrites=true&w=majority&appName=chatcountdb")
+  .connect(
+    "mongodb+srv://ranianadine:kUp44PvOVpUzcyhK@chatcountdb.lrppzqm.mongodb.net/?retryWrites=true&w=majority&appName=chatcountdb"
+  )
   .then(() => {
     console.log(`Connected to ${databaseName}`);
   })
@@ -33,7 +35,7 @@ mongoose
     console.log(err);
   });
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:4200"); // Replace with your frontend's origin
+  res.header("Access-Control-Allow-Origin", "https://chatcountbackend-6d6fa3db0146.herokuapp.com  "); // Replace with your frontend's origin
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -44,7 +46,7 @@ app.use(morgan("dev"));
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:4200",
+    origin: "https://chatcountbackend-6d6fa3db0146.herokuapp.com",
     methods: ["GET", "POST", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   },
@@ -52,7 +54,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: "http://localhost:4200",
+    origin: "https://chatcountbackend-6d6fa3db0146.herokuapp.com",
     methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -79,13 +81,15 @@ app.use("/gse", (req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-app.get("/",async (req,res) => {try {
-  const users = await user.find({});
-  res.status(200).json(users);
-} catch (error) {
-  console.error("Error fetching users:", error);
-  res.status(500).json({ error: "Internal server error" });
-}});
+app.get("/", async (req, res) => {
+  try {
+    const users = await user.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 app.use("/user", userRoute);
 app.use("/fec", fecRoute);
 app.use("/conversation", conversationRoute);
