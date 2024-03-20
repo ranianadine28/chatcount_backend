@@ -4,6 +4,7 @@ import { notFoundError, errorHandler } from "./middlewares/error-handler.js";
 import morgan from "morgan";
 import cors from "cors";
 import { Server } from "socket.io";
+import user from "./Models/user.js";
 
 import path from "path";
 import http from "http";
@@ -78,7 +79,13 @@ app.use("/gse", (req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-app.get("/",(req,res) => {res.send("heloooo");});
+app.get("/",async (req,res) => {try {
+  const users = await user.find({});
+  res.status(200).json(users);
+} catch (error) {
+  console.error("Error fetching users:", error);
+  res.status(500).json({ error: "Internal server error" });
+}});
 app.use("/user", userRoute);
 app.use("/fec", fecRoute);
 app.use("/conversation", conversationRoute);
