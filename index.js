@@ -24,7 +24,7 @@ import conversationRoute from "./Routes/conversation_route.js";
 import conversation from "./Models/conversation.js";
 //DATABASE
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect("mongodb+srv://ranianadine:kUp44PvOVpUzcyhK@chatcountdb.lrppzqm.mongodb.net/?retryWrites=true&w=majority&appName=chatcountdb")
   .then(() => {
     console.log(`Connected to ${databaseName}`);
   })
