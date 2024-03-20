@@ -24,7 +24,7 @@ import conversationRoute from "./Routes/conversation_route.js";
 import conversation from "./Models/conversation.js";
 //DATABASE
 mongoose
-  .connect(`mongodb://localhost:27017/${databaseName}`)
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log(`Connected to ${databaseName}`);
   })
