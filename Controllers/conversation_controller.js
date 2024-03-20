@@ -31,7 +31,7 @@ export async function ajoutConversation(req, res) {
 }
 export async function afficherConv(req, res) {
   try {
-    const userId = req.params.userId; // Supposons que l'ID de l'utilisateur est passé en tant que paramètre dans la requête
+    const userId = req.params.userId; 
 
     const conversations = await conversation.find({ userId });
 
@@ -48,6 +48,10 @@ export async function recupConv(req, res) {
   const { conversationId } = req.params;
 
   try {
+    if (conversationId === ":id") {
+      return res.json([]); 
+    }
+
     const conversationM = await conversation.findById(conversationId);
     
     if (!conversationM) {
@@ -60,6 +64,7 @@ export async function recupConv(req, res) {
     res.status(500).json({ message: 'Server error' });
   }
 }
+
 export const deleteConversation = async (req, res) => {
   console.log("deeeeeeeeeeeeeeeeeeeeeeeel");
   try {

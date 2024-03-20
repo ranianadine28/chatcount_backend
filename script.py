@@ -1,9 +1,13 @@
-# script.py
+import sys
+import codecs
 
-def generate_response(user_message):
-    return "Bonjour! Merci pour votre message."
+sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 
-if __name__ == "__main__":
-    user_message = input("Entrez votre message : ")
-    response = generate_response(user_message)
-    print(response)
+text = sys.argv[1]
+
+if text == 'quit':
+    sys.exit(0)
+
+response = "Ceci est une réponse statique à votre requête : '{}'".format(text)
+
+print(response)

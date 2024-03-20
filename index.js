@@ -9,7 +9,7 @@ import path from "path";
 import http from "http";
 import bodyParser from "body-parser";
 import ConversationModel from "./Models/conversation.js";
-import {spawn } from 'child_process'
+import { spawn } from "child_process";
 const app = express();
 const server = http.createServer(app);
 
@@ -45,7 +45,7 @@ app.use(morgan("dev"));
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:4200",
-    methods: ["GET", "POST","DELETE","PATCH"],
+    methods: ["GET", "POST", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   },
 });
@@ -53,7 +53,7 @@ const io = new Server(server, {
 app.use(
   cors({
     origin: "http://localhost:4200",
-    methods: ["GET", "POST","DELETE","PATCH", "OPTIONS"],
+    methods: ["GET", "POST", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
@@ -89,60 +89,58 @@ app.use(errorHandler);
 server.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
 });
-
-
-
 io.on("connection", (socket) => {
   console.log("Un utilisateur s'est connecté");
-
-  socket.on('message', async (message) => {
+  socket.on("message", async (message) => {
     console.log("Message reçu :", message);
-  
-    const { conversationId, text } = message;
-  
-    try {
-      const pythonProcess = spawn('python', ['./script.py']);
 
-      pythonProcess.stdout.on('data', async (data) => {
-        const prediction = data.toString();
+    const { conversationId, text } = message;
+
+    try {
+      const pythonProcess = spawn("python", ["./script.py", text]); // Passer le message en tant qu'argument
+
+      pythonProcess.stdout.on("data", async (data) => {
+        const output = data.toString().trim();
+        console.log("Sortie brute du script Python :", output);
+
+        // Traitez la réponse du script Python ici
+        const response = output; // Ajoutez votre logique pour traiter la réponse du script Python
+
+        console.log("Réponse du bot extraite :", response);
         const botMessage = {
-          sender: 'bot',
-          text: prediction
+          sender: "bot",
+          text: response,
         };
-        // Envoyer la réponse du bot au client
-        socket.emit("message", prediction);
-        await saveMessageToDatabase('user', text, conversationId);
-        await saveMessageToDatabase('bot', prediction, conversationId);
-        console.log("Message enregistré :", { sender: 'bot', text: prediction });
+        socket.emit("message", botMessage.text); // Envoyer seulement le texte du message au front-end
+        console.log("Réponse du bot envoyée :", response);
+        await saveMessageToDatabase("user", text, conversationId); // Enregistrer le message de l'utilisateur dans la base de données
+        await saveMessageToDatabase("bot", response, conversationId); // Enregistrer la réponse du bot dans la base de données
+        console.log("Message enregistré :", { sender: "bot", text: response });
       });
 
-      pythonProcess.stderr.on('data', (data) => {
+      pythonProcess.stderr.on("data", (data) => {
         console.error(`Erreur de script Python : ${data}`);
       });
 
-      pythonProcess.on('close', (code) => {
+      pythonProcess.on("close", (code) => {
         console.log(`Processus Python terminé avec le code de sortie ${code}`);
       });
-
-      // Envoi du message de l'utilisateur au script Python
-      pythonProcess.stdin.write(text);
-      pythonProcess.stdin.end();
     } catch (error) {
       console.error("Error handling message:", error);
     }
   });
-  
+
   async function saveMessageToDatabase(sender, text, conversationId) {
     try {
       let conversation = await ConversationModel.findById(conversationId);
-  
+
       if (!conversation) {
         conversation = new ConversationModel({
           _id: conversationId,
           messages: [],
         });
       }
-  
+
       conversation.messages.push({ sender, text });
       await conversation.save();
     } catch (error) {
