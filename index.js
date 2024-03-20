@@ -39,7 +39,6 @@ app.use((req, res, next) => {
   );
   next();
 });
-
 app.use(morgan("dev"));
 
 const io = new Server(server, {
@@ -79,7 +78,7 @@ app.use("/gse", (req, res, next) => {
 });
 
 app.use(express.urlencoded({ extended: true }));
-
+app.get("/",(req,res) => {res.send("heloooo");});
 app.use("/user", userRoute);
 app.use("/fec", fecRoute);
 app.use("/conversation", conversationRoute);
